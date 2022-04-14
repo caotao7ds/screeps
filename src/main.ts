@@ -1,4 +1,7 @@
 import { ErrorMapper } from "utils/ErrorMapper";
+import roleHarvester from "role/harvester";
+import roleUpgrader from "role/upgrader";
+import roleBuilder from "role/builder";
 
 declare global {
   /*
@@ -32,12 +35,60 @@ declare global {
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  console.log(`Current game tick is ${Game.time}`);
+  const harvesters = _.filter(Game.creeps, creep => creep.memory.role == "harvester");
+  const upgrader = _.filter(Game.creeps, creep => creep.memory.role == "upgrader");
+  const builders = _.filter(Game.creeps, creep => creep.memory.role == "builder");
+
+  if (harvesters.length < 2) {
+    console.log("Harvesters: " + harvesters.length);
+    var newName = "Harvester" + Game.time;
+    console.log("Spawning new harvester: " + newName);
+    Game.spawns["Spawn1"].spawnCreep([WORK, CARRY, MOVE], newName, {
+      memory: {
+        role: "harvester",
+        room: Game.spawns["Spawn1"].room.name,
+        working: false
+      }
+    });
+  }
+
+  if (upgrader.length < 1) {
+    console.log("Upgrader: " + harvesters.length);
+    var newName = "Upgrader" + Game.time;
+    console.log("Spawning new upgrader: " + newName);
+    Game.spawns["Spawn1"].spawnCreep([WORK, CARRY, MOVE], newName, {
+      memory: {
+        role: "upgrader",
+        room: Game.spawns["Spawn1"].room.name,
+        working: false
+      }
+    });
+  }
+
+  if (builders.length < 2) {
+    console.log("Builder: " + builders.length);
+    var newName = "Builder" + Game.time;
+    console.log("Spawning new builder: " + newName);
+    Game.spawns["Spawn1"].spawnCreep([WORK, CARRY, MOVE], newName, {
+      memory: {
+        role: "builder",
+        room: Game.spawns["Spawn1"].room.name,
+        working: false
+      }
+    });
+  }
 
   // Automatically delete memory of missing creeps
-  for (const name in Memory.creeps) {
-    if (!(name in Game.creeps)) {
-      delete Memory.creeps[name];
+  for (const name in Game.creeps) {
+    const creep = Game.creeps[name];
+    if (creep.memory.role == "harvester") {
+      roleHarvester.run(creep);
+    }
+    if (creep.memory.role == "upgrader") {
+      roleUpgrader.run(creep);
+    }
+    if (creep.memory.role == "builder") {
+      roleBuilder.run(creep);
     }
   }
 });

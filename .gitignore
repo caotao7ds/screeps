@@ -5,6 +5,7 @@
 /package-lock.json
 
 # Ignore basic folders
+/docs
 /dist
 /.rpt2_cache
 /tsc-out
@@ -90,5 +91,3 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-
-screeps.json
