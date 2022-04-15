@@ -39,43 +39,43 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const upgrader = _.filter(Game.creeps, creep => creep.memory.role == "upgrader");
   const builders = _.filter(Game.creeps, creep => creep.memory.role == "builder");
 
-  if (harvesters.length < 2) {
-    console.log("Harvesters: " + harvesters.length);
+  if (harvesters.length < 1) {
     var newName = "Harvester" + Game.time;
-    console.log("Spawning new harvester: " + newName);
-    Game.spawns["Spawn1"].spawnCreep([WORK, CARRY, MOVE], newName, {
+    console.log("Spawning new Harvester: " + newName);
+    const result = Game.spawns["Spawn1"].spawnCreep([WORK, WORK, CARRY, MOVE, MOVE], newName, {
       memory: {
         role: "harvester",
         room: Game.spawns["Spawn1"].room.name,
         working: false
       }
     });
+    console.log("spawn Harvester result: " + result);
   }
 
   if (upgrader.length < 1) {
-    console.log("Upgrader: " + harvesters.length);
     var newName = "Upgrader" + Game.time;
-    console.log("Spawning new upgrader: " + newName);
-    Game.spawns["Spawn1"].spawnCreep([WORK, CARRY, MOVE], newName, {
+    console.log("Spawning new Upgrader: " + newName);
+    const result = Game.spawns["Spawn1"].spawnCreep([WORK, CARRY, CARRY, MOVE, MOVE], newName, {
       memory: {
         role: "upgrader",
         room: Game.spawns["Spawn1"].room.name,
         working: false
       }
     });
+    console.log("spawn Upgrader result: " + result);
   }
 
-  if (builders.length < 2) {
-    console.log("Builder: " + builders.length);
+  if (builders.length < 1) {
     var newName = "Builder" + Game.time;
     console.log("Spawning new builder: " + newName);
-    Game.spawns["Spawn1"].spawnCreep([WORK, CARRY, MOVE], newName, {
+    const result = Game.spawns["Spawn1"].spawnCreep([WORK, CARRY, CARRY, MOVE, MOVE], newName, {
       memory: {
         role: "builder",
         room: Game.spawns["Spawn1"].room.name,
         working: false
       }
     });
+    console.log("spawn Builder result: " + result);
   }
 
   // Automatically delete memory of missing creeps
