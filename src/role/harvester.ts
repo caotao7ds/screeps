@@ -8,16 +8,39 @@ const roleHarvester = {
       creep.memory.working = true;
     }
     // 能量满了
-    else if (creep.store.getFreeCapacity() == 0) {
+    else if (creep.memory.working && creep.store.getFreeCapacity() == 0) {
       creep.memory.working = false;
     }
 
-    if (!creep.memory.working && creep.room.energyAvailable == creep.room.energyCapacityAvailable) {
-      workUtils.doBuild(creep);
-    } else if (creep.memory.working) {
+    if (creep.memory.working) {
       workUtils.doHarvest(creep);
-    } else if (creep.room.energyAvailable != creep.room.energyCapacityAvailable){
-      workUtils.doTransfer(creep);
+    }
+    else {
+      // if (creep.room.energyAvailable != creep.room.energyCapacityAvailable) {
+      // workUtils.doTransfer(creep);
+
+      let targets = creep.room.find(FIND_STRUCTURES, {
+        filter: structure => {
+          return (
+            structure.structureType == STRUCTURE_CONTAINER &&
+            structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+          );
+        }
+      });
+      const target = creep.pos.findClosestByRange(FIND_STRUCTURES,
+        {
+          filter: structure => {
+            return (
+              structure.structureType == STRUCTURE_CONTAINER
+            );
+          }
+
+        })
+      if (target) {
+        if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
+        }
+      }
     }
   }
 };
