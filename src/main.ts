@@ -5,7 +5,9 @@ import roleBuilder from "role/builder";
 import roletransporter from "role/transporter";
 import roleRepairer from "role/repairer";
 import BodyAutoConfig from "utils/BodyAutoConfig";
-import { Position } from "source-map";
+import memoryUtils from "utils/MemorySetter";
+
+import Extensions from "utils/Extensions";
 
 declare global {
   /*
@@ -22,21 +24,21 @@ declare global {
     log: any;
   }
 
+  interface Room {
+    sources: Source[];
+  }
+
   interface CreepMemory {
     role: string;
     room: string;
     working: boolean;
-    orgin?: Position;
-    destination?:Position;
+    orgin: RoomPosition | undefined;
+    destination: RoomPosition | undefined;
   }
 
   interface Source {
-    memory?:SourceMemory;
-  }
-
-  interface SourceMemory {
-    worker?: string;
-    store?:Position;
+    worker: string[];
+    store: AnyStructure;
   }
 
   // Syntax for adding proprties to `global` (ex "global.log")
@@ -65,13 +67,33 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const upgraderBodyGetter = BodyAutoConfig.createBodyGetter(BodyAutoConfig.bodyConfigs.worker);
   const buildersBodyGetter = BodyAutoConfig.createBodyGetter(BodyAutoConfig.bodyConfigs.worker);
 
+  memoryUtils.linkContainerAndSource(room);
+
+  Extensions();
+  // Automatically delete memory of missing creeps
+  for (const name in Memory.creeps) {
+    if (!(name in Game.creeps)) {
+      delete Memory.creeps[name];
+      room.sources?.forEach(source => {
+        const i = source.worker.indexOf(name);
+        if (i) {
+          source.worker.splice(i, 1);
+        }
+      });
+    }
+  }
+
   if (harvesters.length < 1) {
     const newName = "Harvester" + Game.time;
+    const orgin = memoryUtils.generateHarvesterOrgin(room.sources).pos;
+    const destination = memoryUtils.generateHarvesterDestination(orgin.lookFor(LOOK_SOURCES)[0]).pos;
     const result = Game.spawns["Spawn1"].spawnCreep(harvesterBodyGetter(room, spawn), newName, {
       memory: {
         role: "harvester",
         room: Game.spawns["Spawn1"].room.name,
         working: false,
+        orgin: orgin,
+        destination: destination
       }
     });
     console.log("spawn harvester result: " + result);
@@ -84,24 +106,31 @@ export const loop = ErrorMapper.wrapLoop(() => {
         role: "transporter",
         room: Game.spawns["Spawn1"].room.name,
         working: false,
+        orgin: undefined,
+        destination: undefined
       }
     });
     console.log("spawn transporter result: " + result);
   }
 
+  // 先造1个harvesters和1个transporter再造第2个harvesters
   if (harvesters.length < 2) {
     const newName = "Harvester" + Game.time;
+    const orgin = memoryUtils.generateHarvesterOrgin(room.sources).pos;
+    const destination = memoryUtils.generateHarvesterDestination(orgin.lookFor(LOOK_SOURCES)[0]).pos;
     const result = Game.spawns["Spawn1"].spawnCreep(harvesterBodyGetter(room, spawn), newName, {
       memory: {
         role: "harvester",
         room: Game.spawns["Spawn1"].room.name,
-        working: false
+        working: false,
+        orgin: orgin,
+        destination: destination
       }
     });
     console.log("spawn harvester result: " + result);
   }
 
-  if (builders.length < 1) {
+  if (builders.length < 2) {
     // 存在待建才生成builder
     const targets = room.find(FIND_CONSTRUCTION_SITES);
     if (targets.length) {
@@ -110,7 +139,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
         memory: {
           role: "builder",
           room: Game.spawns["Spawn1"].room.name,
-          working: false
+          working: false,
+          orgin: undefined,
+          destination: undefined
         }
       });
       console.log("spawn builder result: " + result);
@@ -123,7 +154,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
       memory: {
         role: "upgrader",
         room: Game.spawns["Spawn1"].room.name,
-        working: false
+        working: false,
+        orgin: undefined,
+        destination: undefined
       }
     });
     console.log("spawn upgrader result: " + result);
@@ -132,7 +165,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   if (repairers.length < 1) {
     const targets = room.find(FIND_STRUCTURES, {
       filter: structure => {
-        return (structure.hits / structure.hitsMax < 0.2 && structure.structureType != STRUCTURE_WALL)
+        return structure.hits / structure.hitsMax < 0.2 && structure.structureType != STRUCTURE_WALL;
       }
     });
     if (targets.length) {
@@ -142,18 +175,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
         memory: {
           role: "repairer",
           room: Game.spawns["Spawn1"].room.name,
-          working: false
+          working: false,
+          orgin: undefined,
+          destination: undefined
         }
       });
       console.log("spawn repairer result: " + result);
-    }
-  }
-
-
-  // Automatically delete memory of missing creeps
-  for (const name in Memory.creeps) {
-    if (!(name in Game.creeps)) {
-      delete Memory.creeps[name];
     }
   }
 

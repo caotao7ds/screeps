@@ -1,5 +1,3 @@
-import { any, drop, sortBy, transform } from "lodash";
-
 const workUtils = {
   doHarvest: doHarvest,
   doBuild: doBuild,
@@ -15,7 +13,7 @@ function getEnergy(creep: Creep) {
       creep.moveTo(drops[0], { visualizePathStyle: { stroke: "#ffffff" } });
     }
   }
-  
+
   let structures = creep.room.find(FIND_STRUCTURES, {
     filter: structure => {
       return structure.structureType == STRUCTURE_CONTAINER && structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
@@ -27,9 +25,16 @@ function getEnergy(creep: Creep) {
 }
 
 function doHarvest(creep: Creep) {
-  let sources = creep.room.find(FIND_SOURCES);
-  if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-    creep.moveTo(sources[0], { visualizePathStyle: { stroke: "#ffaa00" } });
+  // let sources = creep.room.find(FIND_SOURCES);
+  // if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+  //   creep.moveTo(sources[0], { visualizePathStyle: { stroke: "#ffaa00" } });
+  // }
+  if (creep.memory.orgin) {
+    const o = creep.memory.orgin;
+    const target = new RoomPosition(o.x, o.y, o.roomName).lookFor(LOOK_SOURCES)[0];
+    if (creep.harvest(target) == ERR_NOT_IN_RANGE) {
+      creep.moveTo(target, { visualizePathStyle: { stroke: "#ffaa00" } });
+    }
   }
 }
 
@@ -43,16 +48,11 @@ function doBuild(creep: Creep) {
 }
 
 function doRepair(creep: Creep) {
-  let targets = creep.room.find(FIND_STRUCTURES
-    , {
+  let targets = creep.room.find(FIND_STRUCTURES, {
     filter: structure => {
-      return (
-        structure.hits / structure.hitsMax < 0.3
-      && structure.structureType != STRUCTURE_WALL
-      )
+      return structure.hits / structure.hitsMax < 0.3 && structure.structureType != STRUCTURE_WALL;
     }
-  }
-  );
+  });
   if (targets.length) {
     if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
       creep.moveTo(targets[0], { visualizePathStyle: { stroke: "#ffffff" } });
