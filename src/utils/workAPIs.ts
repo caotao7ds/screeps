@@ -1,4 +1,4 @@
-const workUtils = {
+const workAPIs = {
   doHarvest: doHarvest,
   doBuild: doBuild,
   doTransfer: doTransfer,
@@ -48,14 +48,17 @@ function doBuild(creep: Creep) {
 }
 
 function doRepair(creep: Creep) {
-  let targets = creep.room.find(FIND_STRUCTURES, {
+  const targets = creep.room.find(FIND_STRUCTURES, {
     filter: structure => {
       return structure.hits / structure.hitsMax < 0.3 && structure.structureType != STRUCTURE_WALL;
     }
   });
+  const target = _.sortBy(targets, structure => {
+    return structure.hits / structure.hitsMax;
+  })[0];
   if (targets.length) {
-    if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(targets[0], { visualizePathStyle: { stroke: "#ffffff" } });
+    if (creep.repair(target) == ERR_NOT_IN_RANGE) {
+      creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
     }
   }
 }
@@ -97,4 +100,4 @@ function doTransfer(creep: Creep) {
   // }
 }
 
-export default workUtils;
+export default workAPIs;

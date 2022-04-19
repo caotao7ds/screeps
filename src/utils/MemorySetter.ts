@@ -10,7 +10,7 @@ const memoryUtils = {
         }
       });
       if (container) {
-        if (!source.worker) {
+        if (source.worker == undefined) {
           source.worker = [];
         }
         source.store = container;
@@ -18,8 +18,8 @@ const memoryUtils = {
     });
   },
   generateHarvesterOrgin: function (sources: Source[]) {
-    return sources.sort((a, b) => {
-      return a.worker.length - b.worker.length;
+    return _.sortBy(sources, source => {
+      return source.worker.length;
     })[0];
   },
   generateHarvesterDestination: function (source: Source) {

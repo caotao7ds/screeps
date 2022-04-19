@@ -1,4 +1,4 @@
-import workUtils from "../utils/WorkUtils";
+import workAPIs from "../utils/workAPIs";
 
 const roleTransfer = {
     /**
@@ -12,9 +12,9 @@ const roleTransfer = {
         }
 
         if (creep.memory.working) {
-            workUtils.doTransfer(creep);
+            workAPIs.doTransfer(creep);
         } else {
-            workUtils.getEnergy(creep);
+            workAPIs.getEnergy(creep);
         }
 
     }

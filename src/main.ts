@@ -1,9 +1,9 @@
 import { ErrorMapper } from "utils/ErrorMapper";
-import roleHarvester from "role/harvester";
-import roleUpgrader from "role/upgrader";
-import roleBuilder from "role/builder";
-import roletransporter from "role/transporter";
-import roleRepairer from "role/repairer";
+import RoleHarvester from "role/harvester";
+import RoleUpgrader from "role/upgrader";
+import RoleBuilder from "role/builder";
+import Roletransporter from "role/transporter";
+import RoleRepairer from "role/repairer";
 import BodyAutoConfig from "utils/BodyAutoConfig";
 import memoryUtils from "utils/MemorySetter";
 
@@ -26,6 +26,10 @@ declare global {
 
   interface Room {
     sources: Source[];
+  }
+
+  interface Creep {
+    launch:Function
   }
 
   interface CreepMemory {
@@ -52,11 +56,11 @@ declare global {
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  const harvesters = _.filter(Game.creeps, creep => creep.memory.role == "harvester");
-  const upgrader = _.filter(Game.creeps, creep => creep.memory.role == "upgrader");
-  const builders = _.filter(Game.creeps, creep => creep.memory.role == "builder");
+  const harvesters = _.filter(Game.creeps, creep => creep.memory.role == ROLE_HARVESTER);
+  const upgrader = _.filter(Game.creeps, creep => creep.memory.role == ROLE_UPGRADER);
+  const builders = _.filter(Game.creeps, creep => creep.memory.role == ROLE_BUILDERS);
   const transporter = _.filter(Game.creeps, creep => creep.memory.role == "transporter");
-  const repairers = _.filter(Game.creeps, creep => creep.memory.role == "repairer");
+  const repairers = _.filter(Game.creeps, creep => creep.memory.role == ROLE_REPAIRERS);
 
   const room: Room = Game.spawns["Spawn1"].room;
   const spawn: StructureSpawn = Game.spawns["Spawn1"];
@@ -70,7 +74,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   memoryUtils.linkContainerAndSource(room);
 
   Extensions();
-  // Automatically delete memory of missing creeps
+  // 从内存中清理死亡的creeps
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name];
@@ -85,17 +89,24 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   if (harvesters.length < 1) {
     const newName = "Harvester" + Game.time;
-    const orgin = memoryUtils.generateHarvesterOrgin(room.sources).pos;
+    const source = memoryUtils.generateHarvesterOrgin(room.sources);
+    const orgin = source.pos;
     const destination = memoryUtils.generateHarvesterDestination(orgin.lookFor(LOOK_SOURCES)[0]).pos;
     const result = Game.spawns["Spawn1"].spawnCreep(harvesterBodyGetter(room, spawn), newName, {
       memory: {
-        role: "harvester",
+        role: ROLE_HARVESTER,
         room: Game.spawns["Spawn1"].room.name,
         working: false,
         orgin: orgin,
         destination: destination
       }
     });
+    if (result == 0) {
+      const s = Game.getObjectById(source.id);
+      if (s) {
+        s.worker.push(newName);
+      }
+    }
     console.log("spawn harvester result: " + result);
   }
 
@@ -113,10 +124,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
     console.log("spawn transporter result: " + result);
   }
 
-  // 先造1个harvesters和1个transporter再造第2个harvesters
+  // 先造1个harvester和1个transporter再造第2个harvester
   if (harvesters.length < 2) {
     const newName = "Harvester" + Game.time;
-    const orgin = memoryUtils.generateHarvesterOrgin(room.sources).pos;
+    const source = memoryUtils.generateHarvesterOrgin(room.sources);
+    const orgin = source.pos;
     const destination = memoryUtils.generateHarvesterDestination(orgin.lookFor(LOOK_SOURCES)[0]).pos;
     const result = Game.spawns["Spawn1"].spawnCreep(harvesterBodyGetter(room, spawn), newName, {
       memory: {
@@ -127,6 +139,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
         destination: destination
       }
     });
+    if (result == 0) {
+      const s = Game.getObjectById(source.id);
+      if (s) {
+        s.worker.push(newName);
+      }
+    }
     console.log("spawn harvester result: " + result);
   }
 

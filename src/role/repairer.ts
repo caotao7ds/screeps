@@ -1,4 +1,4 @@
-import workUtils from "../utils/WorkUtils";
+import workAPIs from "../utils/workAPIs";
 
 const roleRepairer = {
   /** @param {Creep} creep **/
@@ -9,10 +9,10 @@ const roleRepairer = {
       creep.memory.working = true;
     }
     if (creep.memory.working) {
-      workUtils.doRepair(creep);
+      workAPIs.doRepair(creep);
     }
     else {
-      workUtils.getEnergy(creep);
+      workAPIs.getEnergy(creep);
     }
   }
 };

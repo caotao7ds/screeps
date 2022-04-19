@@ -1,4 +1,4 @@
-import workUtils from "../utils/WorkUtils";
+import workAPIs from "../utils/workAPIs";
 
 const roleHarvester = {
   /** @param {Creep} creep **/
@@ -13,7 +13,7 @@ const roleHarvester = {
     }
 
     if (creep.memory.working) {
-      workUtils.doHarvest(creep);
+      workAPIs.doHarvest(creep);
     } else {
       if (creep.memory.destination) {
         const o = creep.memory.destination;
@@ -50,4 +50,25 @@ const roleHarvester = {
   }
 };
 
-export default roleHarvester;
+export default class RoleHarvester implements Role, CreepAction {
+  roleName = ROLE_HARVESTER;
+  static launch(creep: Creep): void {
+    let working = false;
+    if (creep.memory.working) {
+      working = this.prepare(creep);
+    } else {
+      working = this.working(creep);
+    }
+    creep.memory.working = working;
+  }
+  static prepare(creep: Creep): boolean {
+    workAPIs.doTransfer(creep);
+    // 能量空了？
+    return creep.store[RESOURCE_ENERGY] == 0;
+  }
+  static working(creep: Creep): boolean {
+    workAPIs.doHarvest(creep);
+    // 能量满了？
+    return creep.store.getFreeCapacity() <= 0;
+  }
+}

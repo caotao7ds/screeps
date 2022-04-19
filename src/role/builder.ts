@@ -1,4 +1,4 @@
-import workUtils from "../utils/WorkUtils";
+import workAPIs from "../utils/workAPIs";
 
 const roleBuilder = {
   /** @param {Creep} creep **/
@@ -9,10 +9,10 @@ const roleBuilder = {
       creep.memory.working = true;
     }
     if (creep.memory.working) {
-      workUtils.doBuild(creep);
+      workAPIs.doBuild(creep);
     }
     else {
-      workUtils.getEnergy(creep);
+      workAPIs.getEnergy(creep);
     }
   }
 };

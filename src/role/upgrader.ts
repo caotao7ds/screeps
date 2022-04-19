@@ -1,4 +1,4 @@
-import workUtils from "../utils/WorkUtils";
+import workAPIs from "../utils/workAPIs";
 const roleUpgrader = {
   /** @param {Creep} creep **/
   run: function (creep: Creep) {
@@ -14,7 +14,7 @@ const roleUpgrader = {
         creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: "#ffffff" } });
       }
     } else {
-      workUtils.getEnergy(creep);
+      workAPIs.getEnergy(creep);
     }
   }
 };
