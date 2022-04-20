@@ -1,3 +1,5 @@
+import { ROLE_HARVESTER } from "role/Role";
+
 const workAPIs = {
   doHarvest: doHarvest,
   doBuild: doBuild,
@@ -6,29 +8,33 @@ const workAPIs = {
   doRepair: doRepair
 };
 
+/**
+ * worker单位获取能量
+ *
+ * @param creep
+ */
 function getEnergy(creep: Creep) {
   let drops = creep.room.find(FIND_DROPPED_RESOURCES);
   if (drops.length) {
     if (creep.pickup(drops[0]) == ERR_NOT_IN_RANGE) {
       creep.moveTo(drops[0], { visualizePathStyle: { stroke: "#ffffff" } });
     }
-  }
-
-  let structures = creep.room.find(FIND_STRUCTURES, {
-    filter: structure => {
-      return structure.structureType == STRUCTURE_CONTAINER && structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
+  } else {
+    let structures = creep.room.find(FIND_STRUCTURES, {
+      filter: structure => {
+        return (
+          (structure.structureType == STRUCTURE_CONTAINER || structure.structureType == STRUCTURE_STORAGE) &&
+          structure.store.getUsedCapacity(RESOURCE_ENERGY) > 300
+        );
+      }
+    });
+    if (creep.withdraw(structures[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+      creep.moveTo(structures[0], { visualizePathStyle: { stroke: "#ffffff" } });
     }
-  });
-  if (creep.withdraw(structures[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-    creep.moveTo(structures[0], { visualizePathStyle: { stroke: "#ffffff" } });
   }
 }
 
 function doHarvest(creep: Creep) {
-  // let sources = creep.room.find(FIND_SOURCES);
-  // if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-  //   creep.moveTo(sources[0], { visualizePathStyle: { stroke: "#ffaa00" } });
-  // }
   if (creep.memory.orgin) {
     const o = creep.memory.orgin;
     const target = new RoomPosition(o.x, o.y, o.roomName).lookFor(LOOK_SOURCES)[0];
@@ -63,36 +69,58 @@ function doRepair(creep: Creep) {
   }
 }
 
+/**
+ * harvester/carrier转移能量到存储容器
+ * harvester转移到 link > container > extension > spawn
+ * carrier转移到 extension > spawn > tower > store
+ * @param creep
+ */
+function doTransfer1(creep: Creep) {
+  if (creep.memory.role == ROLE_HARVESTER) {
+  } else {
+  }
+}
+
 function doTransfer(creep: Creep) {
-  let targets = creep.room.find(FIND_STRUCTURES, {
-    filter: structure => {
-      return (
-        (structure.structureType == STRUCTURE_CONTAINER ||
-          structure.structureType == STRUCTURE_TOWER ||
-          structure.structureType == STRUCTURE_EXTENSION ||
-          structure.structureType == STRUCTURE_SPAWN) &&
-        structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-      );
-    }
-  });
-  let target;
-  for (let index = 0; index < targets.length; index++) {
-    const element = targets[index];
-    // SPAWN 和 EXTENSION优先
-    if (element.structureType == STRUCTURE_SPAWN || element.structureType == STRUCTURE_EXTENSION) {
-      if (element.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
-        target = element;
-        break;
+  if (creep.memory.role == ROLE_HARVESTER && creep.memory.destination) {
+    const d = creep.memory.destination;
+    const target = new RoomPosition(d.x, d.y, d.roomName).lookFor(LOOK_STRUCTURES)[0];
+    if (target) {
+      if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
       }
     }
-    target = element;
-  }
-  if (target) {
-    if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
+  } else {
+    const targets = creep.room.find(FIND_STRUCTURES, {
+      filter: structure => {
+        return (
+          (structure.structureType == STRUCTURE_STORAGE ||
+            structure.structureType == STRUCTURE_CONTAINER ||
+            structure.structureType == STRUCTURE_TOWER ||
+            structure.structureType == STRUCTURE_EXTENSION ||
+            structure.structureType == STRUCTURE_SPAWN) &&
+          structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+        );
+      }
+    });
+    let target;
+    for (let i = 0; i < targets.length; i++) {
+      const element = targets[i];
+      // SPAWN 和 EXTENSION优先
+      if (element.structureType == STRUCTURE_SPAWN || element.structureType == STRUCTURE_EXTENSION) {
+        if (element.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+          target = element;
+          break;
+        }
+      }
+      target = element;
+    }
+    if (target) {
+      if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
+      }
     }
   }
-
   // if (targets.length > 0) {
   //   if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
   //     creep.moveTo(targets[0], { visualizePathStyle: { stroke: "#ffffff" } });

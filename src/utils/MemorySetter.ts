@@ -1,28 +1,45 @@
 const memoryUtils = {
+  setter: function (room: Room) {
+    this.setSourceMemory(room);
+  },
   /** 各个source和最近的container */
-  linkContainerAndSource: function (room: Room) {
+  setSourceMemory: function (room: Room) {
+    if (!Memory.sources) {
+      console.log("Memory.sources undefined, init Memory.sources");
+      Memory.sources = {};
+    }
     const sources = room.find(FIND_SOURCES);
-    room.sources = sources;
     sources.forEach(source => {
-      const container = source.pos.findClosestByRange(FIND_STRUCTURES, {
-        filter: structure => {
-          return structure.structureType == STRUCTURE_CONTAINER;
-        }
+      if (!Memory.sources[source.id]) {
+        Memory.sources[source.id] = {
+          roomName: source.room.name,
+          pos: source.pos,
+          id: source.id,
+          worker: [],
+          store: undefined
+        };
+      }
+      const sourceRange5 = source.pos.findInRange(FIND_STRUCTURES, 5);
+      const containers = sourceRange5.filter(structure => {
+        return structure.structureType == STRUCTURE_CONTAINER;
       });
-      if (container) {
-        if (source.worker == undefined) {
-          source.worker = [];
-        }
-        source.store = container;
+      const links = sourceRange5.filter(structure => {
+        return structure.structureType == STRUCTURE_LINK;
+      });
+      if (links.length) {
+        Memory.sources[source.id].store = links[0].pos;
+      } else if (containers.length) {
+        Memory.sources[source.id].store = containers[0].pos;
       }
     });
   },
-  generateHarvesterOrgin: function (sources: Source[]) {
-    return _.sortBy(sources, source => {
+  generateHarvesterOrgin: function () {
+    const sortResult = _.sortBy(Memory.sources, source => {
       return source.worker.length;
-    })[0];
+    });
+    return sortResult[0];
   },
-  generateHarvesterDestination: function (source: Source) {
+  generateHarvesterDestination: function (source: SourceMemory) {
     return source.store;
   }
 };
