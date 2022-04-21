@@ -1,3 +1,4 @@
+import { random } from "lodash";
 import { ROLE_TRANSPORTER, ROLE_HARVESTER } from "role/Role";
 
 const WorkAPIs = {
@@ -136,7 +137,7 @@ function getEnergy(creep: Creep) {
     } else if (links.length) {
       target = links[0];
     } else {
-      target = containers[0];
+      target = containers[random(0, containers.length - 1, false)];
     }
     if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
       creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
