@@ -30,6 +30,8 @@ const memoryUtils = {
         Memory.sources[source.id].store = links[0].pos;
       } else if (containers.length) {
         Memory.sources[source.id].store = containers[0].pos;
+      } else {
+        Memory.sources[source.id].store = undefined;
       }
     });
   },
