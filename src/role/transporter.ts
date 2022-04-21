@@ -1,24 +1,4 @@
-import workAPIs from "../utils/workAPIs";
-
-const roleTransfer = {
-    /**
-     * 从某处转移到某处 
-     * @param {Creep} creep **/
-    run: function (creep: Creep) {
-        if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
-            creep.memory.working = false;
-        } else if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
-            creep.memory.working = true;
-        }
-
-        if (creep.memory.working) {
-            workAPIs.doTransfer(creep);
-        } else {
-            workAPIs.getEnergy(creep);
-        }
-
-    }
-};
+import WorkAPIs from "../utils/WorkAPIs";
 
 /**
  * RoleCarrier 转运角色
@@ -39,12 +19,14 @@ export default class RoleCarrier extends Creep {
 }
 
 function prepare(creep: Creep): boolean {
-  workAPIs.getEnergy(creep);
+  creep.say(creep.memory.role.substring(0,5)+"-prepare");
+  WorkAPIs.getEnergy(creep);
   // 能量满了？转working=true 转运能量
   return creep.store.getFreeCapacity() == 0;
 }
 function doWork(creep: Creep): boolean {
-  workAPIs.doTransfer(creep);
+  creep.say(creep.memory.role.substring(0,5)+"-doWork");
+  WorkAPIs.doTransfer(creep);
   // 能量未空？转working=true 转运能量
   return creep.store[RESOURCE_ENERGY] != 0;
 }

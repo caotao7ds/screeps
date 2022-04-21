@@ -1,4 +1,4 @@
-import workAPIs from "../utils/workAPIs";
+import WorkAPIs from "../utils/WorkAPIs";
 
 /**
  * RoleRepairer 修复角色
@@ -19,12 +19,14 @@ export default class RoleRepairer extends Creep {
 }
 
 function prepare(creep: Creep): boolean {
-  workAPIs.getEnergy(creep);
+  creep.say(creep.memory.role.substring(0,5)+"-prepare");
+  WorkAPIs.getEnergy(creep);
   // 能量满了？转working=true 做修复工作
   return creep.store.getFreeCapacity() == 0;
 }
 function doWork(creep: Creep): boolean {
-  workAPIs.doRepair(creep);
+  creep.say(creep.memory.role.substring(0,5)+"-doWork");
+  WorkAPIs.doRepair(creep);
   // 能量未空？转working=true 做修复工作
   return creep.store[RESOURCE_ENERGY] != 0;
 }

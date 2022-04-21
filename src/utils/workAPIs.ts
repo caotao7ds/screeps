@@ -1,6 +1,6 @@
 import { ROLE_TRANSPORTER, ROLE_HARVESTER } from "role/Role";
 
-const workAPIs = {
+const WorkAPIs = {
   doHarvest: doHarvest,
   doBuild: doBuild,
   doTransfer: doTransfer,
@@ -32,8 +32,8 @@ function doTransfer(creep: Creep) {
     else {
       // 周围一格是否有其它worker，有则转移给worker
       const creeps = creep.pos.findInRange(FIND_MY_CREEPS, 1, {
-        filter: c => {
-          return c.name != creep.name; // 返回自身外的creep
+        filter: otherCreep => {
+          return otherCreep.name != creep.name && otherCreep.store.getFreeCapacity() > 0; // 返回自身外的creep
         }
       });
       if (creeps.length > 0) {
@@ -51,7 +51,7 @@ function doTransfer(creep: Creep) {
           }
         });
         const extensions = targets.filter(
-          structure => structure.structureType == STRUCTURE_EXTENSION && structure.pos.inRangeTo(creep, 10)
+          structure => structure.structureType == STRUCTURE_EXTENSION && creep.pos.inRangeTo(structure, 10)
         );
         const spawns = targets.filter(structure => structure.structureType == STRUCTURE_SPAWN);
         let target;
@@ -212,4 +212,4 @@ function doUpgrader(creep: Creep) {
   }
 }
 
-export default workAPIs;
+export default WorkAPIs;

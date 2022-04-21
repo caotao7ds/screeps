@@ -1,4 +1,4 @@
-import workAPIs from "../utils/workAPIs";
+import WorkAPIs from "../utils/WorkAPIs";
 
 /**
  * RoleUpgrader 转运角色
@@ -19,12 +19,14 @@ export default class RoleUpgrader extends Creep {
 }
 
 function prepare(creep: Creep): boolean {
-  workAPIs.getEnergy(creep);
+  creep.say(creep.memory.role.substring(0,5)+"-prepare");
+  WorkAPIs.getEnergy(creep);
   // 能量满了？转working=true 做升级工作
   return creep.store.getFreeCapacity() == 0;
 }
 function doWork(creep: Creep): boolean {
-  workAPIs.doUpgrader(creep);
+  creep.say(creep.memory.role.substring(0,5)+"-doWork");
+  WorkAPIs.doUpgrader(creep);
   // 能量未空？转working=true 做升级工作
   return creep.store[RESOURCE_ENERGY] != 0;
 }

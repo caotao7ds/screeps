@@ -2,9 +2,9 @@ import WorkAPIs from "../utils/WorkAPIs";
 
 /**
  * RoleBuilder 转运角色
- * 准备阶段: 获取能量
- * 工作阶段: 建筑
- * 切换条件: 能量空了获取能量（准备），能量满了建筑（工作）
+ * 准备阶段: 待机
+ * 工作阶段: 攻击
+ * 切换条件: 没有敌方单位切（准备），发现敌方单位切（工作）
  */
 export default class RoleBuilder extends Creep {
   launch = function (this: RoleBuilder): void {
