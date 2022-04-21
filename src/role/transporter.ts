@@ -19,7 +19,7 @@ export default class RoleCarrier extends Creep {
 }
 
 function prepare(creep: Creep): boolean {
-  creep.say(creep.memory.role.substring(0,5)+"-准备中");
+  creep.say(creep.memory.role.substring(0,5)+"-没有抛瓦");
   WorkAPIs.getEnergy(creep);
   // 能量满了？转working=true 转运能量
   return creep.store.getFreeCapacity() == 0;

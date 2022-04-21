@@ -115,19 +115,25 @@ function doTransfer(creep: Creep) {
  * @param creep
  */
 function getEnergy(creep: Creep) {
-  let drops = creep.room.find(FIND_DROPPED_RESOURCES);
+  let drops = creep.room.find(FIND_DROPPED_RESOURCES).filter(r => { return r.resourceType == RESOURCE_ENERGY && r.amount > 200 });
   let sources = creep.room.find(FIND_STRUCTURES, {
     filter: structure => {
       return (
         (structure.structureType == STRUCTURE_CONTAINER ||
           structure.structureType == STRUCTURE_STORAGE ||
           structure.structureType == STRUCTURE_LINK) &&
-        structure.store.getUsedCapacity(RESOURCE_ENERGY) > 200
+        structure.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getCapacity() * 3
       );
     }
   });
+  // 地上是否有大量能量（>200）
+  if (drops.length) {
+    if (creep.pickup(drops[0]) == ERR_NOT_IN_RANGE) {
+      creep.moveTo(drops[0], { visualizePathStyle: { stroke: "#ffffff" } });
+    }
+  }
   // 容器能量满足条件则从容器取
-  if (sources.length) {
+  else if (sources.length) {
     let target;
     const storage = sources.filter(structure => structure.structureType == STRUCTURE_STORAGE);
     const containers = sources.filter(structure => structure.structureType == STRUCTURE_CONTAINER);
@@ -137,7 +143,8 @@ function getEnergy(creep: Creep) {
     } else if (links.length) {
       target = links[0];
     } else {
-      target = containers[random(0, containers.length - 1, false)];
+      const i = containers.length == 1 ? 0 : Number.parseInt(creep.name.substring(creep.name.length - 2, creep.name.length - 1)) % 2
+      target = containers[i];
     }
     if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
       creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
@@ -145,25 +152,18 @@ function getEnergy(creep: Creep) {
   }
   // 没有容器或容器能量不满足条件的话判断是否有掉落能量以及 harvester
   else {
-    // 地上是否有能量
-    if (drops.length && creep.memory.role == ROLE_TRANSPORTER) {
-      if (creep.pickup(drops[0]) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(drops[0], { visualizePathStyle: { stroke: "#ffffff" } });
+    let existHarvesters: boolean = false;
+    let harvesterName: string = "";
+    for (const key in Game.creeps) {
+      if (Game.creeps[key].memory.role == ROLE_HARVESTER) {
+        existHarvesters = true;
+        harvesterName = key;
+        break;
       }
-    } else {
-      let existHarvesters: boolean = false;
-      let harvesterName: string = "";
-      for (const key in Game.creeps) {
-        if (Game.creeps[key].memory.role == ROLE_HARVESTER) {
-          existHarvesters = true;
-          harvesterName = key;
-          break;
-        }
-      }
-      if (existHarvesters) {
-        let target = Game.creeps[harvesterName];
-        creep.moveTo(target);
-      }
+    }
+    if (existHarvesters) {
+      let target = Game.creeps[harvesterName];
+      creep.moveTo(target);
     }
   }
 }

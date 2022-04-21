@@ -24,29 +24,45 @@ export default {
       if (harvesters.length < 1) {
         generateHarvester(spawn);
       }
-
+      const construction_sites = spawn.room.find(FIND_CONSTRUCTION_SITES);
       // 存在1个以上harvester才生成transporter
       if (transporters.length < 1 && harvesters.length >= 1) {
         generateTransporter(spawn);
       }
       // 存在1个以上 harvester 和 transporter 才生成 builder
-      if (builders.length < 1 && harvesters.length >= 1 && transporters.length >= 1) {
-        // 存在待建才生成builder
-        const targets = spawn.room.find(FIND_CONSTRUCTION_SITES);
-        if (targets.length) {
-          generateBuilder(spawn);
-        }
+      // 存在待建才生成builder
+      if (builders.length < 1 && harvesters.length >= 1 && transporters.length >= 1 && construction_sites.length) {
+        generateBuilder(spawn);
       }
       // 先造1个 harvester 和1个 transporter 再造第2个 harvester
       if (harvesters.length < 2 && transporters.length >= 1 && builders.length >= 1) {
         generateHarvester(spawn);
       }
-      if (builders.length < 2 && harvesters.length >= 2 && transporters.length >= 1) {
-        generateBuilder(spawn);
+      if (harvesters.length >= 2 && transporters.length >= 1) {
+        // 存在待建才生成builder
+        if (builders.length < 1 && construction_sites.length) {
+          generateBuilder(spawn);
+        }
+        else if (upgrader.length < 1) {
+          generateUpgrader(spawn);
+        }
+        else if (builders.length < 2 && construction_sites.length > 5) {
+          generateBuilder(spawn);
+        }
+        else if (builders.length < 4 && construction_sites.length > 10) {
+          generateBuilder(spawn);
+        }
+        else if (upgrader.length < 3 && construction_sites.length == 0) {
+          generateUpgrader(spawn);
+        }
+        else if (transporters.length < 2 && harvesters.length >= 2 && construction_sites.length == 0 && builders.length == 0) {
+          generateTransporter(spawn);
+        }
+        else if (upgrader.length < 5 && construction_sites.length == 0 && builders.length == 0) {
+          generateUpgrader(spawn);
+        }
       }
-      if (upgrader.length < 1 && harvesters.length >= 2 && transporters.length >= 1) {
-        generateUpgrader(spawn);
-      }
+
       if (towers.length < 2 && repairers.length < 1 && harvesters.length >= 2 && transporters.length >= 1) {
         // 存在需要修复的对象才生成repairer
         const targets = spawn.room.find(FIND_STRUCTURES, {

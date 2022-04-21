@@ -23,6 +23,7 @@ export default class RoleHarvester extends Creep {
  * @returns 
  */
 function prepare(creep: Creep): boolean {
+  creep.say(creep.memory.role.substring(0,5)+"-吃撑了");
   WorkAPIs.doTransfer(creep);
   // 能量不满？转working=true采集工作
   return creep.store.getFreeCapacity() > 0;
@@ -30,6 +31,7 @@ function prepare(creep: Creep): boolean {
 
 
 function doWork(creep: Creep): boolean {
+  creep.say(creep.memory.role.substring(0,5)+"-工作中");
   WorkAPIs.doHarvest(creep);
   // 能量未满？转working=true采集工作
   return creep.store.getFreeCapacity() > 0;
