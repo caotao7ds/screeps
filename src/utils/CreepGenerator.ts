@@ -1,6 +1,7 @@
 import { ROLE_BUILDERS, ROLE_HARVESTER, ROLE_REPAIRERS, ROLE_TRANSPORTER, ROLE_UPGRADER } from "role/Role";
 import memoryUtils from "./MemorySetter";
 import BodyAutoConfig from "utils/BodyAutoConfig";
+import Creep2StructureLinker from "./Creep2StructureLinker";
 
 export default {
   generateCreeps: function (room: Room) {
@@ -71,7 +72,7 @@ const buildersBodyGetter = BodyAutoConfig.createBodyGetter(BodyAutoConfig.bodyCo
 function generateHarvester(spawn: StructureSpawn) {
   const newName = ROLE_HARVESTER + Game.time;
   // 返回的是拷贝
-  const source = memoryUtils.generateHarvesterOrgin();
+  const source = Creep2StructureLinker.generateHarvesterOrgin();
   const orgin = source.pos;
   const destination = source.store;
   const result = Game.spawns["Spawn1"].spawnCreep(harvesterBodyGetter(spawn.room, spawn), newName, {

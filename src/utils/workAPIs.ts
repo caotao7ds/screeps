@@ -21,10 +21,12 @@ function doTransfer(creep: Creep) {
     const store = creep.memory.destination;
     // 如果store存在（非undefined），转移到 link > container
     if (store) {
-      let target = new RoomPosition(store.x, store.y, store.roomName).lookFor(LOOK_STRUCTURES)[0];
-      if (target) {
-        if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
+      let targets = new RoomPosition(store.x, store.y, store.roomName).lookFor(LOOK_STRUCTURES).filter(structure => {
+        return structure.structureType == STRUCTURE_LINK || structure.structureType == STRUCTURE_CONTAINER;
+      });
+      if (targets.length) {
+        if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(targets[0], { visualizePathStyle: { stroke: "#ffffff" } });
         }
       }
     }

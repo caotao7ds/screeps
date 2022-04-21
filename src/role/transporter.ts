@@ -19,13 +19,13 @@ export default class RoleCarrier extends Creep {
 }
 
 function prepare(creep: Creep): boolean {
-  creep.say(creep.memory.role.substring(0,5)+"-prepare");
+  creep.say(creep.memory.role.substring(0,5)+"-准备中");
   WorkAPIs.getEnergy(creep);
   // 能量满了？转working=true 转运能量
   return creep.store.getFreeCapacity() == 0;
 }
 function doWork(creep: Creep): boolean {
-  creep.say(creep.memory.role.substring(0,5)+"-doWork");
+  creep.say(creep.memory.role.substring(0,5)+"-工作中");
   WorkAPIs.doTransfer(creep);
   // 能量未空？转working=true 转运能量
   return creep.store[RESOURCE_ENERGY] != 0;

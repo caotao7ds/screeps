@@ -5,14 +5,12 @@ import RoleUpgrader from "role/upgrader";
 import RoleBuilder from "role/builder";
 import RoleCarrier from "role/transporter";
 import RoleRepairer from "role/repairer";
-import BodyAutoConfig from "utils/BodyAutoConfig";
 import roleTower from "role/tower";
 
 import memoryUtils from "utils/MemorySetter";
 
 import ExtensionsMount from "utils/Extensions";
 import { ROLE_BUILDERS, ROLE_TRANSPORTER, ROLE_HARVESTER, ROLE_REPAIRERS, ROLE_UPGRADER } from "role/Role";
-import { filter } from "lodash";
 import CreepGenerator from "utils/CreepGenerator";
 
 declare global {
@@ -65,7 +63,6 @@ declare global {
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   const room: Room = Game.spawns["Spawn1"].room;
-  const spawn: StructureSpawn = Game.spawns["Spawn1"];
 
   const towers = room.find(FIND_STRUCTURES, {
     filter: structure => {
