@@ -1,3 +1,6 @@
+/**
+ * creep和建筑一对一绑定
+ */
 const Creep2StructureLinker = {
   generateHarvesterOrgin: function () {
     const sortResult = _.sortBy(Memory.sources, source => {

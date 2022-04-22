@@ -7,5 +7,6 @@ const ROLE_REPAIRERS = "repairer";
 export { ROLE_HARVESTER, ROLE_UPGRADER, ROLE_BUILDERS, ROLE_TRANSPORTER, ROLE_REPAIRERS };
 
 export interface CreepAction {
-  lanuch:Function;
+  lanuch(Creep:Creep) :void;
+  destroy(Creep:Creep) :void;
 }

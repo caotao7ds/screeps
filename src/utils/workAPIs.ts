@@ -122,7 +122,7 @@ function getEnergy(creep: Creep) {
         (structure.structureType == STRUCTURE_CONTAINER ||
           structure.structureType == STRUCTURE_STORAGE ||
           structure.structureType == STRUCTURE_LINK) &&
-        structure.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getCapacity() * 3
+        structure.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getCapacity() * 1.5
       );
     }
   });
@@ -143,7 +143,7 @@ function getEnergy(creep: Creep) {
     } else if (links.length) {
       target = links[0];
     } else {
-      const i = containers.length == 1 ? 0 : Number.parseInt(creep.name.substring(creep.name.length - 2, creep.name.length - 1)) % 2
+      const i = containers.length == 1 ? 0 : Number.parseInt(creep.name.substring(creep.name.length - 2, creep.name.length)) % 2
       target = containers[i];
     }
     if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {

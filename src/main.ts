@@ -27,12 +27,14 @@ declare global {
     uuid: number;
     log: any;
     sources: { [name: string]: SourceMemory };
+    blueprintString: string;
   }
 
   interface Room {}
 
   interface Creep {
     launch: Function;
+    destroy: Function;
   }
 
   interface CreepMemory {

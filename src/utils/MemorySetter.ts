@@ -1,6 +1,33 @@
 const memoryUtils = {
   setter: function (room: Room) {
     this.setSourceMemory(room);
+    this.initStructureBlueprint(room);
+    if (Game.time % 1000 == 0) {
+      this.compareAndUpdateStructureBlueprint(room);
+    }
+  },
+  initStructureBlueprint(room: Room) {
+    if (!Memory.blueprintString) {
+      let currentStructures = room.find(FIND_MY_STRUCTURES);
+      let blueprintString = "";
+      currentStructures.forEach(s => {
+        blueprintString =
+          blueprintString + s.pos.roomName + "," + s.pos.x + "," + s.pos.y + "," + s.structureType + ";";
+      });
+      Memory.blueprintString = blueprintString;
+    }
+  },
+  compareAndUpdateStructureBlueprint(room: Room) {
+    let currentStructures = room.find(FIND_CONSTRUCTION_SITES);
+    let blueprintString = Memory.blueprintString;
+    currentStructures.forEach(s => {
+      let structureString = s.pos.roomName + "," + s.pos.x + "," + s.pos.y + "," + s.structureType + ";";
+      // 新建筑
+      if (blueprintString.indexOf(structureString) == -1) {
+        blueprintString = blueprintString + structureString;
+      }
+    });
+    Memory.blueprintString = blueprintString;
   },
   /** 各个source和最近的container */
   setSourceMemory: function (room: Room) {
