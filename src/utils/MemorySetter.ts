@@ -18,7 +18,7 @@ const memoryUtils = {
     }
   },
   compareAndUpdateStructureBlueprint(room: Room) {
-    let currentStructures = room.find(FIND_CONSTRUCTION_SITES);
+    let currentStructures = room.find(FIND_MY_STRUCTURES);
     let blueprintString = Memory.blueprintString;
     currentStructures.forEach(s => {
       let structureString = s.pos.roomName + "," + s.pos.x + "," + s.pos.y + "," + s.structureType + ";";
