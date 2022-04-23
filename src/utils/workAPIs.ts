@@ -201,8 +201,8 @@ function getEnergy(creep: Creep) {
       creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
     }
   }
-  // 没有容器或容器能量不足的话找 harvester 取
-  else {
+  // 没有容器的话找 harvester 取（低等级时）
+  else if (!sourceStructures.length) {
     let existHarvesters: boolean = false;
     let harvesterName: string = "";
     for (const key in Game.creeps) {
