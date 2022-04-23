@@ -116,6 +116,7 @@ function doTransfer(creep: Creep) {
 function getEnergy(creep: Creep) {
   let drops = creep.room.find(FIND_DROPPED_RESOURCES).filter(r => { return r.resourceType == RESOURCE_ENERGY && r.amount > 200 });
   let tombstones = creep.room.find(FIND_TOMBSTONES).filter(t => { return t.store.getUsedCapacity() > 100 });
+  let ruins = creep.room.find(FIND_RUINS).filter(r => { return r.store.getUsedCapacity(RESOURCE_ENERGY) > 0 });
   let sourceStructures = creep.room.find(FIND_STRUCTURES, {
     filter: structure => {
       return (
@@ -140,6 +141,10 @@ function getEnergy(creep: Creep) {
     else if (tombstones.length) {
       if (creep.withdraw(tombstones[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
         creep.moveTo(tombstones[0], { visualizePathStyle: { stroke: "#ffffff" } });
+      }
+    } else if (ruins.length) {
+      if (creep.withdraw(ruins[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(ruins[0], { visualizePathStyle: { stroke: "#ffffff" } });
       }
     }
     else {

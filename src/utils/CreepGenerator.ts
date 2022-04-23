@@ -67,12 +67,14 @@ export default {
        */
       if (harvesters.length >= 2 && transporters.length >= 1) {
         // 存在待建才生成builder
-        if (transporters.length < 4) {
-          generateTransporter(spawn);
-          return;
-        } else if (
-          (builders.length < 2 && construction_sites_need > 1500) ||
-          (builders.length < 4 && construction_sites_need > 3000)
+        // if (transporters.length < 4) {
+        //   generateTransporter(spawn);
+        //   return;
+        // } 
+        // else 
+        if (
+          (builders.length < 2 && construction_sites_need > 3000) ||
+          (builders.length < 4 && construction_sites_need > 9000)
         ) {
           generateBuilder(spawn);
           return;
