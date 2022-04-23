@@ -22,6 +22,8 @@ export default {
     }
     if (spawn && (Game.time % 201 === 0 || spawn.room.energyAvailable == spawn.room.energyCapacityAvailable)) {
       const construction_sites = spawn.room.find(FIND_CONSTRUCTION_SITES);
+      let construction_sites_need = 0;
+      construction_sites.forEach((cur) => { construction_sites_need = construction_sites_need + cur.progressTotal - cur.progress; })
       /**
        * 生成 harvester
        * 第1个：不存在 harvester
@@ -38,7 +40,7 @@ export default {
        */
       if (
         transporters.length == 0 ||
-        (transporters.length < 2 && harvesters.length >= 2 && construction_sites.length == 0 && builders.length == 0)
+        (transporters.length < 2 && harvesters.length >= 2)
       ) {
         generateTransporter(spawn);
         return;
@@ -65,17 +67,17 @@ export default {
        */
       if (harvesters.length >= 2 && transporters.length >= 1) {
         // 存在待建才生成builder
-        if (
-          (builders.length < 2 && construction_sites.length > 5) ||
-          (builders.length < 4 && construction_sites.length > 10)
+        if (transporters.length < 4) {
+          generateTransporter(spawn);
+          return;
+        } else if (
+          (builders.length < 2 && construction_sites_need > 1500) ||
+          (builders.length < 4 && construction_sites_need > 3000)
         ) {
           generateBuilder(spawn);
           return;
-        } else if (upgraders.length < 6 && construction_sites.length == 0) {
+        } else if (upgraders.length < 4 && construction_sites_need < 500) {
           generateUpgrader(spawn);
-          return;
-        } else if (transporters.length < 4 && construction_sites.length == 0) {
-          generateTransporter(spawn);
           return;
         }
       }
@@ -204,5 +206,5 @@ function generateCreepName(roleName: string): string {
     lastNum = 2;
   }
   const tickStr = String(Game.time);
-  return roleName.substring(0,5) + tickStr.substring(tickStr.length - 4, tickStr.length) + String(lastNum);
+  return roleName.substring(0, 5) + tickStr.substring(tickStr.length - 4, tickStr.length) + String(lastNum);
 }

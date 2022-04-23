@@ -23,7 +23,7 @@ function doTransfer(creep: Creep) {
     // 如果store存在（非undefined），转移到 link > container
     if (store) {
       let targets = new RoomPosition(store.x, store.y, store.roomName).lookFor(LOOK_STRUCTURES).filter(structure => {
-        return structure.structureType == STRUCTURE_LINK || structure.structureType == STRUCTURE_CONTAINER;
+        return (structure.structureType == STRUCTURE_LINK || structure.structureType == STRUCTURE_CONTAINER);
       });
       if (targets.length) {
         if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
@@ -108,49 +108,100 @@ function doTransfer(creep: Creep) {
 }
 
 /**
- * carrier单位获取能量
- * container > harvester
- * worker单位获取能量
- * link > store > container > harvester
+ * transporter 单位获取能量 container > link > storage >harvester
+ * worker 单位获取能量 storage > link > container > harvester
+ * 
  * @param creep
  */
 function getEnergy(creep: Creep) {
   let drops = creep.room.find(FIND_DROPPED_RESOURCES).filter(r => { return r.resourceType == RESOURCE_ENERGY && r.amount > 200 });
-  let sources = creep.room.find(FIND_STRUCTURES, {
+  let tombstones = creep.room.find(FIND_TOMBSTONES).filter(t => { return t.store.getUsedCapacity() > 100 });
+  let sourceStructures = creep.room.find(FIND_STRUCTURES, {
     filter: structure => {
       return (
         (structure.structureType == STRUCTURE_CONTAINER ||
           structure.structureType == STRUCTURE_STORAGE ||
-          structure.structureType == STRUCTURE_LINK) &&
-        structure.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getCapacity() * 1.5
+          structure.structureType == STRUCTURE_LINK)
       );
     }
   });
-  // 地上是否有大量能量（>200）
-  if (drops.length) {
-    if (creep.pickup(drops[0]) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(drops[0], { visualizePathStyle: { stroke: "#ffffff" } });
+  const storage = sourceStructures.filter(structure => structure.structureType == STRUCTURE_STORAGE);
+  const containers = sourceStructures.filter(structure => structure.structureType == STRUCTURE_CONTAINER && structure.store.getUsedCapacity() > 0);
+  const links = sourceStructures.filter(structure => structure.structureType == STRUCTURE_LINK);
+  // transporter
+  if (creep.memory.role == ROLE_TRANSPORTER) {
+    // 地上有大量能量（>200）
+    if (drops.length) {
+      if (creep.pickup(drops[0]) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(drops[0], { visualizePathStyle: { stroke: "#ffffff" } });
+      }
+    }
+    // 墓碑有大量能量（>100）
+    else if (tombstones.length) {
+      if (creep.withdraw(tombstones[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(tombstones[0], { visualizePathStyle: { stroke: "#ffffff" } });
+      }
+    }
+    else {
+      let target;
+      if (containers.length) {
+        const i = containers.length == 1 ? 0 : Number.parseInt(creep.name.substring(creep.name.length - 1, creep.name.length)) % 2
+        target = containers[i];
+      }
+      // 两个以上link，只去storage附近的link取
+      else if (links.length >= 2) {
+        const storageLink = storage[0].pos.findInRange(FIND_STRUCTURES, 5, {
+          filter: (strusture => { return strusture.structureType == STRUCTURE_LINK; })
+        });
+        target = storageLink[0];
+      }
+      // 只有1个link，去link取
+      else if (links.length == 1) {
+        target = links[0];
+      }
+      // storage存在
+      else {
+        target = storage[0];
+      }
+      if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
+      }
     }
   }
-  // 容器能量满足条件则从容器取
-  else if (sources.length) {
+  // worker
+  else if (sourceStructures.length && creep.memory.role != ROLE_TRANSPORTER) {
     let target;
-    const storage = sources.filter(structure => structure.structureType == STRUCTURE_STORAGE);
-    const containers = sources.filter(structure => structure.structureType == STRUCTURE_CONTAINER);
-    const links = sources.filter(structure => structure.structureType == STRUCTURE_LINK);
-    if (storage.length) {
+    // storage存在
+    if (storage.length &&
+      creep.memory.role != ROLE_TRANSPORTER &&
+      storage[0].structureType == STRUCTURE_STORAGE &&
+      storage[0].store.getUsedCapacity(RESOURCE_ENERGY)) {
       target = storage[0];
-    } else if (links.length) {
+    }
+    // 两个以上link，只去storage附近的link取
+    else if (links.length >= 2) {
+      const storageLink = storage[0].pos.findInRange(FIND_STRUCTURES, 5, {
+        filter: (strusture => { return strusture.structureType == STRUCTURE_LINK; })
+      });
+      target = storageLink[0];
+      // console.log(target.pos)
+    }
+    //只有1个link，去link取
+    else if (links.length == 1) {
+      // console.log("只有1个link")
       target = links[0];
-    } else {
-      const i = containers.length == 1 ? 0 : Number.parseInt(creep.name.substring(creep.name.length - 2, creep.name.length)) % 2
+    }
+    // 没有storage和link去container取
+    else {
+      // console.log("storage和link没能量")
+      const i = containers.length == 1 ? 0 : Number.parseInt(creep.name.substring(creep.name.length - 1, creep.name.length)) % 2
       target = containers[i];
     }
     if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
       creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
     }
   }
-  // 没有容器或容器能量不满足条件的话判断是否有掉落能量以及 harvester
+  // 没有容器或容器能量不足的话找 harvester 取
   else {
     let existHarvesters: boolean = false;
     let harvesterName: string = "";
@@ -162,6 +213,7 @@ function getEnergy(creep: Creep) {
       }
     }
     if (existHarvesters) {
+      // console.log("找harvester拿")
       let target = Game.creeps[harvesterName];
       creep.moveTo(target);
     }

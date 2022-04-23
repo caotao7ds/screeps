@@ -5,7 +5,8 @@ import RoleUpgrader from "role/upgrader";
 import RoleBuilder from "role/builder";
 import RoleCarrier from "role/transporter";
 import RoleRepairer from "role/repairer";
-import roleTower from "role/tower";
+import structureTower from "role/tower";
+import structureLink from "role/linker";
 
 import memoryUtils from "utils/MemorySetter";
 
@@ -71,6 +72,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
       return structure.structureType == STRUCTURE_TOWER;
     }
   });
+  const links = room.find(FIND_STRUCTURES, {
+    filter: structure => {
+      return structure.structureType == STRUCTURE_LINK;
+    }
+  });
 
   memoryUtils.setter(room);
 
@@ -116,9 +122,16 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
+  
   towers.forEach(tower => {
     if (tower.structureType == STRUCTURE_TOWER) {
-      roleTower.run(tower);
+      structureTower.run(tower);
+    }
+  });
+
+  links.forEach(link => {
+    if (link.structureType == STRUCTURE_LINK) {
+      structureLink.run(link);
     }
   });
 });

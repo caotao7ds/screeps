@@ -8,7 +8,9 @@ const memoryUtils = {
   },
   initStructureBlueprint(room: Room) {
     if (!Memory.blueprintString) {
-      let currentStructures = room.find(FIND_MY_STRUCTURES);
+      let currentStructures = room.find(FIND_STRUCTURES,{filter:structure =>{
+        return structure.structureType != STRUCTURE_CONTROLLER && structure.structureType != STRUCTURE_WALL
+      }});
       let blueprintString = "";
       currentStructures.forEach(s => {
         blueprintString =
@@ -18,7 +20,9 @@ const memoryUtils = {
     }
   },
   compareAndUpdateStructureBlueprint(room: Room) {
-    let currentStructures = room.find(FIND_CONSTRUCTION_SITES);
+    let currentStructures = room.find(FIND_STRUCTURES,{filter:structure =>{
+      return structure.structureType != STRUCTURE_CONTROLLER && structure.structureType != STRUCTURE_WALL
+    }});
     let blueprintString = Memory.blueprintString;
     currentStructures.forEach(s => {
       let structureString = s.pos.roomName + "," + s.pos.x + "," + s.pos.y + "," + s.structureType + ";";
