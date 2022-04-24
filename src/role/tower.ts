@@ -1,4 +1,4 @@
-const roleTower = {
+const structureTower = {
 
   run: function (tower: StructureTower) {
     if (tower) {
@@ -18,4 +18,4 @@ const roleTower = {
   }
 }
 
-export default roleTower;
+export default structureTower;
