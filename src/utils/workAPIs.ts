@@ -1,5 +1,5 @@
 import { random } from "lodash";
-import { ROLE_TRANSPORTER, ROLE_HARVESTER } from "role/Role";
+import { ROLE_TRANSPORTER, ROLE_HARVESTER } from "role/Worker";
 
 const WorkAPIs = {
   doHarvest: doHarvest,

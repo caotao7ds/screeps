@@ -11,7 +11,7 @@ import structureLink from "role/linker";
 import memoryUtils from "utils/MemorySetter";
 
 import ExtensionsMount from "utils/Extensions";
-import { ROLE_BUILDERS, ROLE_TRANSPORTER, ROLE_HARVESTER, ROLE_REPAIRERS, ROLE_UPGRADER } from "role/Role";
+import { ROLE_BUILDERS, ROLE_TRANSPORTER, ROLE_HARVESTER, ROLE_REPAIRERS, ROLE_UPGRADER, CreepAction } from "role/Worker";
 import CreepGenerator from "utils/CreepGenerator";
 
 declare global {
@@ -35,8 +35,8 @@ declare global {
 
   interface Creep {
     launch: Function;
-    destroy: Function;
   }
+  interface Creep extends CreepAction{}
 
   interface CreepMemory {
     role: string;
