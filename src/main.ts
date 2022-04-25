@@ -3,7 +3,7 @@ import { ErrorMapper } from "utils/ErrorMapper";
 import RoleHarvester from "role/harvester";
 import RoleUpgrader from "role/upgrader";
 import RoleBuilder from "role/builder";
-import RoleCarrier from "role/transporter";
+import RoleTransporter from "role/transporter";
 import RoleRepairer from "role/repairer";
 import structureTower from "role/tower";
 import structureLink from "role/linker";
@@ -11,7 +11,7 @@ import structureLink from "role/linker";
 import memoryUtils from "utils/MemorySetter";
 
 import ExtensionsMount from "utils/Extensions";
-import { ROLE_BUILDERS, ROLE_TRANSPORTER, ROLE_HARVESTER, ROLE_REPAIRERS, ROLE_UPGRADER, CreepAction } from "role/Worker";
+import { ROLE_BUILDERS, ROLE_TRANSPORTER, ROLE_HARVESTER, ROLE_REPAIRERS, ROLE_UPGRADER, CreepAction } from "role/Role";
 import CreepGenerator from "utils/CreepGenerator";
 
 declare global {
@@ -34,9 +34,10 @@ declare global {
   interface Room {}
 
   interface Creep {
-    launch: Function;
   }
-  interface Creep extends CreepAction{}
+  interface Creep extends CreepAction {
+    execute: (creep: Creep)=>void;
+  }
 
   interface CreepMemory {
     role: string;
@@ -101,28 +102,27 @@ export const loop = ErrorMapper.wrapLoop(() => {
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
     if (creep.memory.role == ROLE_HARVESTER) {
-      creep.launch = new RoleHarvester(creep.id).launch;
-      creep.launch();
+      creep.execute = RoleHarvester.launch;
+      creep.execute(creep);
     }
     if (creep.memory.role == ROLE_UPGRADER) {
-      creep.launch = new RoleUpgrader(creep.id).launch;
-      creep.launch();
+      creep.execute = RoleUpgrader.launch;
+      creep.execute(creep);
     }
     if (creep.memory.role == ROLE_BUILDERS) {
-      creep.launch = new RoleBuilder(creep.id).launch;
-      creep.launch();
+      creep.execute = RoleBuilder.launch;
+      creep.execute(creep);
     }
     if (creep.memory.role == ROLE_TRANSPORTER) {
-      creep.launch = new RoleCarrier(creep.id).launch;
-      creep.launch();
+      creep.execute = RoleTransporter.launch;
+      creep.execute(creep);
     }
     if (creep.memory.role == ROLE_REPAIRERS) {
-      creep.launch = new RoleRepairer(creep.id).launch;
-      creep.launch();
+      creep.execute = RoleRepairer.launch;
+      creep.execute(creep);
     }
   }
 
-  
   towers.forEach(tower => {
     if (tower.structureType == STRUCTURE_TOWER) {
       structureTower.run(tower);

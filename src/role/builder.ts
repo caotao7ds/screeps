@@ -1,22 +1,24 @@
 import WorkAPIs from "../utils/WorkAPIs";
 
+const RoleBuilder = {
+  launch : function (creep: Creep): void {
+    let working = false;
+    if (creep.memory.working) {
+      working = doWork(creep);
+    } else {
+      working = prepare(creep);
+    }
+    creep.memory.working = working;
+  }
+}
+
 /**
  * RoleBuilder 转运角色
  * 准备阶段: 获取能量
  * 工作阶段: 建筑
  * 切换条件: 能量空了获取能量（准备），能量满了建筑（工作）
  */
-export default class RoleBuilder extends Creep {
-  launch = function (this: RoleBuilder): void {
-    let working = false;
-    if (this.memory.working) {
-      working = doWork(this);
-    } else {
-      working = prepare(this);
-    }
-    this.memory.working = working;
-  };
-}
+export default RoleBuilder;
 
 function prepare(creep: Creep): boolean {
   creep.say(creep.memory.role.substring(0,5)+"-没有抛瓦");

@@ -1,4 +1,4 @@
-import { ROLE_BUILDERS, ROLE_HARVESTER, ROLE_REPAIRERS, ROLE_TRANSPORTER, ROLE_UPGRADER } from "role/Worker";
+import { ROLE_BUILDERS, ROLE_HARVESTER, ROLE_REPAIRERS, ROLE_TRANSPORTER, ROLE_UPGRADER } from "role/Role";
 import BodyAutoConfig from "utils/BodyAutoConfig";
 import Creep2StructureLinker from "./Creep2StructureLinker";
 
