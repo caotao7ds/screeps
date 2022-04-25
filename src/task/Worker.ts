@@ -1,13 +1,6 @@
-const Worker = {
-  getEnergy: getEnergy
-}
-
-function getEnergy(target: RoomPosition):boolean {
-  return true;
-}
-
-function doWork(target: RoomPosition):boolean {
-  return true;
-}
+type Worker = {
+  getEnergy: (target: RoomPosition) => boolean;
+  doWork: (target: RoomPosition) => void;
+};
 
 export default Worker;
