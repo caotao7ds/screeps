@@ -1,7 +1,7 @@
 import WorkAPIs from "../utils/WorkAPIs";
 
 const RoleTransporter = {
-  launch : function (creep: Creep): void {
+  launch: function (creep: Creep): void {
     let working = false;
     if (creep.memory.working) {
       working = doWork(creep);
@@ -10,7 +10,7 @@ const RoleTransporter = {
     }
     creep.memory.working = working;
   }
-}
+};
 
 /**
  * RoleTransporter 转运角色
@@ -21,14 +21,14 @@ const RoleTransporter = {
 export default RoleTransporter;
 
 function prepare(creep: Creep): boolean {
-  creep.say(creep.memory.role.substring(0,5)+"-没有抛瓦");
+  creep.say(creep.memory.role.substring(0, 5) + "-没有抛瓦");
   WorkAPIs.getEnergy(creep);
   // 能量满了？转working=true 转运能量
   return creep.store.getFreeCapacity() == 0;
 }
 
 function doWork(creep: Creep): boolean {
-  creep.say(creep.memory.role.substring(0,5)+"-工作中");
+  creep.say(creep.memory.role.substring(0, 5) + "-工作中");
   WorkAPIs.doTransfer(creep);
   // 能量未空？转working=true 转运能量
   return creep.store[RESOURCE_ENERGY] != 0;

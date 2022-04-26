@@ -1,7 +1,7 @@
 import WorkAPIs from "../utils/WorkAPIs";
 
 const RoleRepairer = {
-  launch : function (creep: Creep): void {
+  launch: function (creep: Creep): void {
     let working = false;
     if (creep.memory.working) {
       working = doWork(creep);
@@ -10,7 +10,7 @@ const RoleRepairer = {
     }
     creep.memory.working = working;
   }
-}
+};
 
 /**
  * RoleRepairer 修复角色
@@ -21,13 +21,13 @@ const RoleRepairer = {
 export default RoleRepairer;
 
 function prepare(creep: Creep): boolean {
-  creep.say(creep.memory.role.substring(0,5)+"-没有抛瓦");
+  creep.say(creep.memory.role.substring(0, 5) + "-没有抛瓦");
   WorkAPIs.getEnergy(creep);
   // 能量满了？转working=true 做修复工作
   return creep.store.getFreeCapacity() == 0;
 }
 function doWork(creep: Creep): boolean {
-  creep.say(creep.memory.role.substring(0,5)+"-工作中");
+  creep.say(creep.memory.role.substring(0, 5) + "-工作中");
   WorkAPIs.doRepair(creep);
   // 能量未空？转working=true 做修复工作
   return creep.store[RESOURCE_ENERGY] != 0;

@@ -1,5 +1,4 @@
 const structureTower = {
-
   run: function (tower: StructureTower) {
     if (tower) {
       var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
@@ -7,15 +6,16 @@ const structureTower = {
         tower.attack(closestHostile);
       }
       var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-        filter: (structure) => structure.hits / structure.hitsMax < 0.3
-          && structure.structureType != STRUCTURE_RAMPART
-          && structure.structureType != STRUCTURE_WALL
+        filter: structure =>
+          structure.hits / structure.hitsMax < 0.3 &&
+          structure.structureType != STRUCTURE_RAMPART &&
+          structure.structureType != STRUCTURE_WALL
       });
       if (closestDamagedStructure) {
         tower.repair(closestDamagedStructure);
       }
     }
   }
-}
+};
 
 export default structureTower;

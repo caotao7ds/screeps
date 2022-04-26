@@ -1,5 +1,5 @@
-type Worker = {
-  getEnergy: (target: RoomPosition) => boolean;
+interface Worker {
+  getEnergy: (target: RoomPosition) => void;
   doWork: (target: RoomPosition) => void;
 };
 
