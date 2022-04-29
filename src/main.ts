@@ -13,6 +13,8 @@ import memoryUtils from "utils/MemorySetter";
 import ExtensionsMount from "utils/Extensions";
 import { ROLE_BUILDERS, ROLE_TRANSPORTER, ROLE_HARVESTER, ROLE_REPAIRERS, ROLE_UPGRADER, CreepAction } from "role/Role";
 import CreepGenerator from "utils/CreepGenerator";
+import RoomTaskGenerator from "task/RoomTaskGenerator";
+import WorkAPIs from "utils/WorkAPIs";
 
 declare global {
   /*
@@ -33,10 +35,17 @@ declare global {
 
   interface Room {}
 
-  interface Creep {
+  interface RoomMemory {
+    sources: RoomPosition[];
+    mineral: RoomPosition;
+    storage: RoomPosition;
   }
+
+  interface Creep {}
   interface Creep extends CreepAction {
-    execute: (creep: Creep)=>void;
+    execute1: (target: RoomPosition) => void;
+    execute: (creep: Creep) => void;
+    
   }
 
   interface CreepMemory {
@@ -45,6 +54,7 @@ declare global {
     working: boolean;
     orgin: RoomPosition | undefined;
     destination: RoomPosition | undefined;
+    target: RoomPosition | undefined;
   }
 
   interface SourceMemory {
@@ -98,6 +108,37 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   CreepGenerator.generateCreeps(room);
+
+  const fullCreeps = RoomTaskGenerator.getFullCreeps(Game.creeps);
+  const emptyCreeps = RoomTaskGenerator.getNoFullCreeps(Game.creeps);
+  const lessStores = RoomTaskGenerator.getLessStores(room);
+  const dropedResource = RoomTaskGenerator.getDropedResource(room);
+  const usedStores = RoomTaskGenerator.getUsedStores(room);
+  const constructionSite = RoomTaskGenerator.getConstructionSite(room);
+
+  if (!room.memory.storage) {
+    const storage = usedStores.filter(s => {
+      return s.structureType == STRUCTURE_STORAGE;
+    });
+    if (storage.length) {
+      room.memory.storage = storage[0].pos;
+    }
+  }
+  if (!room.memory.sources) {
+    room.memory.sources = [];
+    for (let i = 0; i < RoomTaskGenerator.getSources(room).length; i++) {
+      const e = RoomTaskGenerator.getSources(room)[i];
+      room.memory.sources.push(e.pos);
+    }
+  }
+  if (!room.memory.mineral) {
+    room.memory.mineral = RoomTaskGenerator.getMineral(room).pos;
+  }
+  for (let i = 0; i < emptyCreeps.length; i++) {
+    const e = emptyCreeps[i];
+    e.execute1 = WorkAPIs.getEnergy1
+    e.execute1(usedStores[0].pos); 
+  }
 
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];

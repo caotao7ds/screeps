@@ -73,8 +73,8 @@ export default {
         } 
         else 
         if (
-          (builders.length < 2 && construction_sites_need > 3000) ||
-          (builders.length < 3 && construction_sites_need > 9000)
+          (builders.length < 2 && construction_sites_need > 6000) ||
+          (builders.length < 3 && construction_sites_need > 30000)
         ) {
           generateBuilder(spawn);
           return;
@@ -116,7 +116,8 @@ function generateHarvester(spawn: StructureSpawn) {
       room: Game.spawns["Spawn1"].room.name,
       working: false,
       orgin: orgin,
-      destination: destination
+      destination: destination,
+      target: undefined
     }
   });
   if (result == 0) {
@@ -132,7 +133,8 @@ function generateTransporter(spawn: StructureSpawn) {
       room: Game.spawns["Spawn1"].room.name,
       working: false,
       orgin: undefined,
-      destination: undefined
+      destination: undefined,
+      target: undefined
     }
   });
   console.log("spawn carrier result: " + result);
@@ -145,7 +147,8 @@ function generateBuilder(spawn: StructureSpawn) {
       room: Game.spawns["Spawn1"].room.name,
       working: false,
       orgin: undefined,
-      destination: undefined
+      destination: undefined,
+      target: undefined
     }
   });
   console.log("spawn builder result: " + result);
@@ -158,7 +161,8 @@ function generateUpgrader(spawn: StructureSpawn) {
       room: Game.spawns["Spawn1"].room.name,
       working: false,
       orgin: undefined,
-      destination: undefined
+      destination: undefined,
+      target: undefined
     }
   });
   console.log("spawn upgrader result: " + result);
@@ -178,7 +182,8 @@ function generateRepairer(spawn: StructureSpawn) {
         room: Game.spawns["Spawn1"].room.name,
         working: false,
         orgin: undefined,
-        destination: undefined
+        destination: undefined,
+        target: undefined
       }
     });
     console.log("spawn repairer result: " + result);
